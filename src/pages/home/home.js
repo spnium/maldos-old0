@@ -1,8 +1,5 @@
 "use strict";
-var { loadNav } = require("../nav/navutils");
 var { ipcRenderer } = require("electron");
-// Nav
-loadNav("main-nav");
 // Timer
 const FULL_DASH_ARRAY = 283;
 const WARNING_THRESHOLD = 10;

@@ -31,7 +31,7 @@ const createWindow = () => {
 		},
 	});
 
-	win.loadFile(path.join(__dirname, "/pages/main/main.html"));
+	win.loadFile(path.join(__dirname, "/pages/main_page/main.html"));
 
 	win.webContents.openDevTools();
 

@@ -31,7 +31,7 @@ const createWindow = () => {
             contextIsolation: false,
         },
     });
-    win.loadFile(node_path_1.default.join(__dirname, "/pages/main/main.html"));
+    win.loadFile(node_path_1.default.join(__dirname, "/pages/main_page/main.html"));
     win.webContents.openDevTools();
     win.on("closed", () => {
         win = null;
