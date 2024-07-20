@@ -66,7 +66,7 @@ int main(void) {
   client = ALCALSCopyALSServiceClient();
   event = IOHIDServiceClientCopyEvent(client, kAmbientLightSensorEvent, 0, 0);
   value = IOHIDEventGetFloatValue(event, IOHIDEventFieldBase(kAmbientLightSensorEvent));
-  printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b%8f", value);
+  printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b%8f", value); // units: lx
 
   CFRelease(event);
   exit(0);

@@ -153,4 +153,11 @@ function getTemperature() {
         .split("\n")[51]
         .replace(/\D/g, "") / 100);
 }
-console.log(getTemperature());
+function getLight() {
+    return +execSync(`/Users/maytanan/Desktop/maldos/src/light_sensor/light`, { encoding: "utf8" })
+        .toString()
+        .replace(/\D/g, "")
+        .slice(0, -6);
+}
+console.log("Temperature:" + getTemperature());
+console.log("Light:" + getLight());

@@ -1,0 +1,28 @@
+.about {
+	font-family: "Sarabun", sans-serif;
+	text-align: center;
+	font-size: 16px;
+	margin-top: 10px !important;
+    padding-left: 245px;
+}
+
+.about b {
+	font-weight: 700;
+}
+
+.logo-about-page img {
+	padding: 8px;
+	margin-bottom: 6px;
+	width: 90px;
+	height: 90px;
+}
+
+.license img {
+	width: 180px;
+}
+
+.license {
+	padding-top: 20px;
+	padding-right: 10px;
+	text-align: right;
+}
