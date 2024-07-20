@@ -11,7 +11,7 @@ try {
 	require("electron-reloader")(module);
 } catch (_) {}
 
-let win: any = null;
+let win: BrowserWindow | null = null;
 let alredyInit = false;
 const TIMELIMIT = 10;
 const SNOOZELIMIT = 5;
