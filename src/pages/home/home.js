@@ -20,13 +20,18 @@ const COLOR_CODES = {
 let timeLeft;
 let TIME_LIMIT;
 ipcRenderer.on("update-timer", (_event, arg) => {
-    timeLeft = arg[0];
-    TIME_LIMIT = arg[1];
-    if (document.getElementById("base-timer") && timeLeft > 0) {
-        updateTimer();
-    }
-    else {
-        drawTimer();
+    if (document.getElementById("timer")) {
+        timeLeft = arg[0];
+        TIME_LIMIT = arg[1];
+        if (document.getElementById("base-timer") && timeLeft > 0) {
+            updateTimer();
+        }
+        else {
+            drawTimer();
+        }
+        if (!document.getElementById("start")) {
+            renderButtons(timeLeft > 0 ? true : false);
+        }
     }
 });
 function updateTimer() {
@@ -108,7 +113,8 @@ function renderButtons(hidden) {
     `;
 }
 ipcRenderer.on("render-buttons", (_event, arg) => {
-    renderButtons(arg);
+    if (document.getElementById("controls"))
+        renderButtons(arg);
 });
 function startGame() {
     ipcRenderer.send("start-game");

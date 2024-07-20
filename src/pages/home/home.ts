@@ -23,13 +23,19 @@ let timeLeft: number;
 let TIME_LIMIT: number;
 
 ipcRenderer.on("update-timer", (_event, arg) => {
-	timeLeft = arg[0];
-	TIME_LIMIT = arg[1];
+	if (document.getElementById("timer")) {
+		timeLeft = arg[0];
+		TIME_LIMIT = arg[1];
 
-	if (document.getElementById("base-timer") && timeLeft > 0) {
-		updateTimer();
-	} else {
-		drawTimer();
+		if (document.getElementById("base-timer") && timeLeft > 0) {
+			updateTimer();
+		} else {
+			drawTimer();
+		}
+
+		if (!document.getElementById("start")) {
+			renderButtons(timeLeft > 0 ? true : false);
+		}
 	}
 });
 
@@ -121,7 +127,7 @@ function renderButtons(hidden: boolean) {
 }
 
 ipcRenderer.on("render-buttons", (_event, arg) => {
-	renderButtons(arg);
+	if (document.getElementById("controls")) renderButtons(arg);
 });
 
 function startGame() {

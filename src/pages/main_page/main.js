@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 window.$ = window.jQuery = require("jquery");
 var { ipcRenderer } = require("electron");
+jQuery.ajaxSetup({ async: false });
 function loadNav(activeElementClass) {
     return __awaiter(this, void 0, void 0, function* () {
         $(() => {
@@ -50,7 +51,10 @@ function attachHandlersToNavs() {
 function loadPage(name) {
     loadNav(name + "-nav");
     $(() => {
-        $(".content").load(`../../pages/${name}/${name}.html`);
+        $(".page_contents").empty();
+        $(".page_contents").load(`../../pages/${name}/${name}.html`);
+        $.getScript(`../../pages/${name}/${name}.js`);
     });
+    ipcRenderer.send("load-page", name);
 }
 loadPage("home");

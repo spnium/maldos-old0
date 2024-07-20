@@ -1,6 +1,8 @@
 (<any>window).$ = (<any>window).jQuery = require("jquery");
 var { ipcRenderer } = require("electron");
 
+jQuery.ajaxSetup({ async: false });
+
 async function loadNav(activeElementClass: string): Promise<void> {
 	$(() => {
 		$(".nav").load("../nav/nav.html");
@@ -40,8 +42,11 @@ function attachHandlersToNavs() {
 function loadPage(name: string) {
 	loadNav(name + "-nav");
 	$(() => {
-		$(".content").load(`../../pages/${name}/${name}.html`);
+		$(".page_contents").empty();
+		$(".page_contents").load(`../../pages/${name}/${name}.html`);
+		$.getScript(`../../pages/${name}/${name}.js`);
 	});
+	ipcRenderer.send("load-page", name);
 }
 
 loadPage("home");

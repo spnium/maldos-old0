@@ -13,8 +13,8 @@ try {
 
 let win: BrowserWindow | null = null;
 let alredyInit = false;
-const TIMELIMIT = 10;
-const SNOOZELIMIT = 5;
+let TIMELIMIT = 45 * 60;
+let SNOOZELIMIT = 10 * 60;
 let timeLimit = TIMELIMIT;
 let timeLeft = timeLimit;
 
@@ -40,6 +40,9 @@ const createWindow = () => {
 	});
 
 	const startTimer = () => {
+		if (!timerInterval) {
+			timerInterval = null;
+		}
 		if (timeLeft > 0) {
 			sendToRenderer("render-buttons", true);
 		} else {
@@ -81,10 +84,20 @@ const createWindow = () => {
 	};
 
 	win.webContents.on("did-finish-load", () => {
-		if (!timerInterval) {
-			timerInterval = null;
-		}
 		startTimer();
+	});
+
+	ipcMain.on("load-page", (event, page) => {
+		switch (page) {
+			case "home":
+				startTimer();
+				break;
+			case "settings":
+				sendToRenderer("render-settings", timeLimit / 60);
+				break;
+			default:
+				break;
+		}
 	});
 
 	ipcMain.on("start-game", () => {
@@ -144,6 +157,11 @@ const Interval = function (this: any, fn: Function, duration: number, ...args: a
 
 ipcMain.on("nav-btn-click", (event: any, arg: any) => {
 	console.log(arg + " clicked");
+});
+
+ipcMain.on("set-time-limit", (event: any, arg: any) => {
+	TIMELIMIT = arg * 60;
+	timeLimit = arg * 60;
 });
 
 const { execSync } = require("child_process");

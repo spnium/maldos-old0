@@ -16,8 +16,8 @@ try {
 catch (_) { }
 let win = null;
 let alredyInit = false;
-const TIMELIMIT = 10;
-const SNOOZELIMIT = 5;
+let TIMELIMIT = 45 * 60;
+let SNOOZELIMIT = 10 * 60;
 let timeLimit = TIMELIMIT;
 let timeLeft = timeLimit;
 let timerInterval = null;
@@ -37,6 +37,9 @@ const createWindow = () => {
         win = null;
     });
     const startTimer = () => {
+        if (!timerInterval) {
+            timerInterval = null;
+        }
         if (timeLeft > 0) {
             sendToRenderer("render-buttons", true);
         }
@@ -77,10 +80,19 @@ const createWindow = () => {
         }
     };
     win.webContents.on("did-finish-load", () => {
-        if (!timerInterval) {
-            timerInterval = null;
-        }
         startTimer();
+    });
+    electron_1.ipcMain.on("load-page", (event, page) => {
+        switch (page) {
+            case "home":
+                startTimer();
+                break;
+            case "settings":
+                sendToRenderer("render-settings", timeLimit / 60);
+                break;
+            default:
+                break;
+        }
     });
     electron_1.ipcMain.on("start-game", () => {
         restartTimer(TIMELIMIT);
@@ -129,6 +141,10 @@ const Interval = function (fn, duration, ...args) {
 };
 electron_1.ipcMain.on("nav-btn-click", (event, arg) => {
     console.log(arg + " clicked");
+});
+electron_1.ipcMain.on("set-time-limit", (event, arg) => {
+    TIMELIMIT = arg * 60;
+    timeLimit = arg * 60;
 });
 const { execSync } = require("child_process");
 function getTemperature() {
