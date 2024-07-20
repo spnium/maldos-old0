@@ -1,0 +1,114 @@
+.base-timer {
+    position: relative;
+    width: 300px;
+    height: 300px;
+}
+
+.base-timer__svg {
+    transform: scaleX(-1);
+    display: block;
+    margin: auto;
+}
+
+.base-timer__circle {
+    fill: none;
+    stroke: none;
+}
+
+.base-timer__path-elapsed {
+    stroke-width: 7px;
+    stroke: grey;
+}
+
+.base-timer__path-remaining {
+    stroke-width: 7px;
+    stroke-linecap: round;
+    transform: rotate(90deg);
+    transform-origin: center;
+    transition: 1s linear all;
+    fill-rule: nonzero;
+    stroke: currentColor;
+}
+
+.base-timer__path-remaining.green {
+    color: #00de00;
+}
+
+.base-timer__path-remaining.orange {
+    color: orange;
+}
+
+.base-timer__path-remaining.red {
+    color: red;
+}
+
+.base-timer__label {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+}
+
+.timer {
+    margin-top: 60px;
+    margin-left: 460px;
+    position: relative;
+}
+
+.controls {
+    margin-top: 40px;
+    margin-left: 462px;
+    position: relative;
+}
+
+.controls button {
+    width: 300px;
+    border: none;
+    border-radius: 34px;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+    font-size: 24px;
+    background-color: #0e4bf1;
+    padding: 14px 40px;
+    color: #fff;
+    margin-top: 15px;
+    cursor: pointer;
+}
+
+.controls button.hidden {
+    display: none;
+}
+
+.controls button span {
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+    transition: 0.5s;
+}
+
+.controls button span:after {
+    content: '>>';
+    position: absolute;
+    opacity: 0;
+    top: 0;
+    right: -20px;
+    transition: 0.5s;
+}
+
+.controls button:hover span {
+    padding-right: 25px;
+}
+
+.controls button:hover span:after {
+    opacity: 1;
+    right: 0;
+}
+
+.controls button:hover {
+    background-color: #0e4bf1;
+}

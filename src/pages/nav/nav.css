@@ -1,0 +1,83 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap");
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    min-height: 100%;
+    background: #e3f2fd;
+}
+
+.logo-name {
+    width: 240px;
+    height: 40px;
+    margin-bottom: 10px;
+    margin-left: 5px;
+}
+
+nav .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 260px;
+    padding: 20px 0;
+    background-color: #fff;
+    box-shadow: 0 5px 1px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar .sidebar-content {
+    display: flex;
+    height: 92%;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 30px 16px;
+    padding-top: 0px !important;
+}
+
+.sidebar-content .list {
+    list-style: none;
+}
+
+.list .nav-link {
+    display: flex;
+    align-items: center;
+    margin: 8px 0;
+    padding: 14px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+.nav-link .icon {
+    margin-right: 14px;
+    font-size: 20px;
+    color: #707070;
+}
+
+.nav-link .link {
+    font-size: 16px;
+    color: #707070;
+    font-weight: 400;
+}
+
+.list .nav-link:hover {
+    background-color: #4070f4;
+}
+
+.list .nav-link:hover .icon,
+.list .nav-link:hover .link {
+    color: #fff;
+}
+
+.list .nav-link.active {
+    background-color: #4070f4;
+}
+
+.list .nav-link.active .icon,
+.list .nav-link.active .link {
+    color: #fff;
+}
