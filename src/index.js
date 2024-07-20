@@ -130,3 +130,11 @@ const Interval = function (fn, duration, ...args) {
 electron_1.ipcMain.on("nav-btn-click", (event, arg) => {
     console.log(arg + " clicked");
 });
+const { execSync } = require("child_process");
+function getTemperature() {
+    return (+execSync(`ioreg -rn AppleSmartBattery`, { encoding: "utf8" })
+        .toString()
+        .split("\n")[51]
+        .replace(/\D/g, "") / 100);
+}
+console.log(getTemperature());

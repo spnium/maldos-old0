@@ -9,43 +9,90 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.loadNav = loadNav;
-window.$ = window.jQuery = require("jquery");
-const { ipcRenderer } = require("electron");
-function loadNav(activeElementClass) {
+exports.getTemperature = getTemperature;
+exports.getBatteryData = getBatteryData;
+exports.getBatteryDataSync = getBatteryDataSync;
+const { execSync, exec } = require("child_process");
+function getTemperature() {
+    return getBatteryDataSync().temperature;
+}
+const cmd = `ioreg -rn AppleSmartBattery`;
+function getBatteryData() {
     return __awaiter(this, void 0, void 0, function* () {
-        $(() => {
-            $(".nav").load("../nav/nav.html");
-        });
-        yield addActiveNavClass(activeElementClass);
-        attachHandlersToNavs();
+        const data = yield readData();
+        return parseData(data);
     });
 }
-function addActiveNavClass(activeElementClass) {
+function getBatteryDataSync() {
+    return parseData(readDataSync());
+}
+function readData() {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => {
-            const addClassInterval = setInterval(() => {
-                if ($("." + activeElementClass).hasClass("active")) {
-                    clearInterval(addClassInterval);
-                    resolve(undefined);
+            exec(cmd, { encoding: "utf8" }, (err, stdout, stderr) => {
+                if (err || stderr !== "") {
+                    reject(err || stderr);
                 }
                 else {
-                    $("." + activeElementClass).addClass("active");
+                    resolve(stdout.toString());
                 }
-            }, 10);
+            });
         });
     });
 }
-function attachHandlersToNavs() {
-    let navs = $(".nav-link");
-    for (let i = 0; i < navs.length; i++) {
-        if (!navs[i].classList.contains("active")) {
-            navs[i].addEventListener("click", () => {
-                ipcRenderer.send("nav-btn-click", navs[i].id);
-                console.log(navs[i].id + " clicked");
-                let name = navs[i].id.replace("-nav", "");
-                window.location.href = `../${name}/${name}.html`;
-            });
+function readDataSync() {
+    return execSync(cmd, { encoding: "utf8" }).toString();
+}
+function parseData(data) {
+    const stats = data.split("\n").reduce((prev, curr) => {
+        curr = curr.trim();
+        if (curr.includes("ExternalConnected")) {
+            prev.external_connected = curr.split("=")[1].trim() === "Yes" ? true : false;
         }
-    }
+        if (curr.includes("BatteryInstalled")) {
+            prev.battery_installed = curr.split("=")[1].trim() === "Yes" ? true : false;
+        }
+        if (curr.includes("FullyCharged")) {
+            prev.fully_charged = curr.split("=")[1].trim() === "Yes" ? true : false;
+        }
+        if (curr.includes("IsCharging")) {
+            prev.is_charging = curr.split("=")[1].trim() === "Yes" ? true : false;
+        }
+        if (curr.includes('"Voltage"') &&
+            !curr.includes("LegacyBatteryInfo") &&
+            !curr.includes("BatteryData")) {
+            prev.voltage = Number(curr.split("=")[1].trim());
+        }
+        if (curr.includes('"CycleCount"') && !curr.includes("BatteryData")) {
+            prev.cycle_count = Number(curr.split("=")[1].trim());
+        }
+        if (curr.includes("DesignCapacity") && !curr.includes("BatteryData")) {
+            prev.design_capacity = Number(curr.split("=")[1].trim());
+        }
+        if (curr.includes("MaxCapacity")) {
+            prev.max_capacity = Number(curr.split("=")[1].trim());
+        }
+        if (curr.includes("CurrentCapacity")) {
+            prev.current_capacity = Number(curr.split("=")[1].trim());
+        }
+        if (curr.includes("DesignCycleCount9C")) {
+            prev.design_cycle_count = Number(curr.split("=")[1].trim());
+        }
+        if (curr.includes("TimeRemaining")) {
+            prev.time_remaining = Number(curr.split("=")[1].trim());
+        }
+        if (curr.includes("Temperature")) {
+            prev.temperature = Number(curr.split("=")[1].trim());
+        }
+        return prev;
+    }, {});
+    return Object.assign({}, stats, {
+        percentage: Math.round(Number((stats.max_capacity / stats.design_capacity) * 100)),
+        cycle_percentage: Math.round(Number((stats.cycle_count / stats.design_cycle_count) * 100)),
+        temperature: Math.round(Number(stats.temperature / 100)),
+        time_remaining_formatted: secondsToHms(stats.time_remaining || 0),
+    });
+}
+function secondsToHms(s) {
+    return s === 0 ? "/" : new Date(1000 * s).toISOString().substr(11, 8);
 }

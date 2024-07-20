@@ -1,5 +1,5 @@
 "use strict";
-var { loadNav } = require("../utils");
+var { loadNav } = require("../nav/navutils");
 var { ipcRenderer } = require("electron");
 // Nav
 loadNav("main-nav");
