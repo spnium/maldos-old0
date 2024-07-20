@@ -1,0 +1,35 @@
+.environment {
+    margin-left: 220px;
+}
+
+.status {
+  margin-top: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.status span {
+  margin: 40px;
+  font-size: 20px;
+}
+
+.env-quality img {
+  margin-top: 100px;
+  width: 200px;
+  height: 200px;
+  filter: invert(68%) sepia(96%) saturate(363%) hue-rotate(85deg) brightness(84%) contrast(90%);
+}
+
+.env-quality span {
+  margin-top: 10px;
+  font-size: 30px;
+  display: block;
+}
+
+.env-quality {
+  margin-left: 300px;
+  vertical-align: top;
+  display: inline-block;
+  text-align: center;
+}

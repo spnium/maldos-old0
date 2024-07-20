@@ -13,8 +13,8 @@ try {
 
 let win: BrowserWindow | null = null;
 let alredyInit = false;
-let TIMELIMIT = 45 * 60;
-let SNOOZELIMIT = 10 * 60;
+let TIMELIMIT = 2701;
+let SNOOZELIMIT = 601;
 let timeLimit = TIMELIMIT;
 let timeLeft = timeLimit;
 
@@ -155,13 +155,11 @@ const Interval = function (this: any, fn: Function, duration: number, ...args: a
 	};
 } as any;
 
-ipcMain.on("nav-btn-click", (event: any, arg: any) => {
-	console.log(arg + " clicked");
-});
+ipcMain.on("nav-btn-click", (event: any, arg: any) => {});
 
 ipcMain.on("set-time-limit", (event: any, arg: any) => {
-	TIMELIMIT = arg * 60;
-	timeLimit = arg * 60;
+	TIMELIMIT = arg * 60 + 1;
+	timeLimit = TIMELIMIT;
 });
 
 const { execSync } = require("child_process");
