@@ -1,8 +1,8 @@
-const { loadNav } = require("../utils");
-const { ipcRenderer } = require("electron");
+var { loadNav } = require("../utils");
+var { ipcRenderer } = require("electron");
 
 // Nav
-loadNav("home-nav");
+loadNav("main-nav");
 
 // Timer
 const FULL_DASH_ARRAY = 283;
@@ -26,7 +26,7 @@ const COLOR_CODES = {
 let timeLeft: number;
 let TIME_LIMIT: number;
 
-ipcRenderer.on("update-timer", (event, arg) => {
+ipcRenderer.on("update-timer", (_event, arg) => {
 	timeLeft = arg[0];
 	TIME_LIMIT = arg[1];
 
@@ -124,7 +124,7 @@ function renderButtons(hidden: boolean) {
     `;
 }
 
-ipcRenderer.on("render-buttons", (event, arg) => {
+ipcRenderer.on("render-buttons", (_event, arg) => {
 	renderButtons(arg);
 });
 

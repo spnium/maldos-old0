@@ -1,8 +1,8 @@
 "use strict";
-const { loadNav } = require("../utils");
-const { ipcRenderer } = require("electron");
+var { loadNav } = require("../utils");
+var { ipcRenderer } = require("electron");
 // Nav
-loadNav("home-nav");
+loadNav("main-nav");
 // Timer
 const FULL_DASH_ARRAY = 283;
 const WARNING_THRESHOLD = 10;
@@ -22,7 +22,7 @@ const COLOR_CODES = {
 };
 let timeLeft;
 let TIME_LIMIT;
-ipcRenderer.on("update-timer", (event, arg) => {
+ipcRenderer.on("update-timer", (_event, arg) => {
     timeLeft = arg[0];
     TIME_LIMIT = arg[1];
     if (document.getElementById("base-timer") && timeLeft > 0) {
@@ -110,7 +110,7 @@ function renderButtons(hidden) {
     <button id="snooze" class="${hiddenClassName}" onclick="snooze()">REMIND ME LATER</button>
     `;
 }
-ipcRenderer.on("render-buttons", (event, arg) => {
+ipcRenderer.on("render-buttons", (_event, arg) => {
     renderButtons(arg);
 });
 function startGame() {

@@ -43,6 +43,8 @@ function attachHandlersToNavs() {
             navs[i].addEventListener("click", () => {
                 ipcRenderer.send("nav-btn-click", navs[i].id);
                 console.log(navs[i].id + " clicked");
+                let name = navs[i].id.replace("-nav", "");
+                window.location.href = `../${name}/${name}.html`;
             });
         }
     }

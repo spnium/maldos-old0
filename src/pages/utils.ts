@@ -1,13 +1,14 @@
 (<any>window).$ = (<any>window).jQuery = require("jquery");
 const { ipcRenderer } = require("electron");
 
-export async function loadNav(activeElementClass: string) {
+export async function loadNav(activeElementClass: string): Promise<void> {
 	$(() => {
 		$(".nav").load("../nav/nav.html");
 	});
 	await addActiveNavClass(activeElementClass);
 	attachHandlersToNavs();
 }
+
 async function addActiveNavClass(activeElementClass: string) {
 	return new Promise((resolve, reject) => {
 		const addClassInterval = setInterval(() => {
@@ -29,6 +30,8 @@ function attachHandlersToNavs() {
 			navs[i].addEventListener("click", () => {
 				ipcRenderer.send("nav-btn-click", navs[i].id);
 				console.log(navs[i].id + " clicked");
+				let name = navs[i].id.replace("-nav", "");
+				window.location.href = `../${name}/${name}.html`;
 			});
 		}
 	}
