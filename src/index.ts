@@ -43,12 +43,12 @@ const createWindow = () => {
 		if (!timerInterval) {
 			timerInterval = null;
 		}
+		sendToRenderer("update-timer", [timeLeft, timeLimit]);
 		if (timeLeft > 0) {
 			sendToRenderer("render-buttons", true);
 		} else {
 			sendToRenderer("render-buttons", false);
 		}
-		sendToRenderer("update-timer", [timeLeft, timeLimit]);
 		if (!alredyInit) {
 			alredyInit = true;
 			timerInterval = new Interval(() => {
