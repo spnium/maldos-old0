@@ -5,6 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const node_path_1 = __importDefault(require("node:path"));
+const electron_store_1 = __importDefault(require("electron-store"));
+const store = new electron_store_1.default();
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
     electron_1.app.quit();
@@ -16,7 +18,11 @@ try {
 catch (_) { }
 let win = null;
 let alredyInit = false;
-let TIMELIMIT = 2701;
+let TIMELIMIT = +store.get("time_limit");
+if (!TIMELIMIT) {
+    TIMELIMIT = 2701;
+    store.set("time_limit", TIMELIMIT);
+}
 let SNOOZELIMIT = 601;
 let timeLimit = TIMELIMIT;
 let timeLeft = timeLimit;
@@ -88,7 +94,7 @@ const createWindow = () => {
                 startTimer();
                 break;
             case "settings":
-                sendToRenderer("render-settings", timeLimit / 60);
+                sendToRenderer("render-settings", (timeLimit - 1) / 60);
                 break;
             default:
                 break;
@@ -143,6 +149,7 @@ electron_1.ipcMain.on("nav-btn-click", (event, arg) => { });
 electron_1.ipcMain.on("set-time-limit", (event, arg) => {
     TIMELIMIT = arg * 60 + 1;
     timeLimit = TIMELIMIT;
+    store.set("time_limit", TIMELIMIT);
 });
 const { execSync } = require("child_process");
 function getTemperature() {
