@@ -2,8 +2,6 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import path from "node:path";
 import Store from "electron-store";
 
-const store = new Store();
-
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
 	app.quit();
@@ -13,6 +11,8 @@ if (require("electron-squirrel-startup")) {
 try {
 	require("electron-reloader")(module);
 } catch (_) {}
+
+const store = new Store();
 
 let win: BrowserWindow | null = null;
 let alredyInit = false;
@@ -176,7 +176,7 @@ function getTemperature(): number {
 	return (
 		+execSync(`ioreg -rn AppleSmartBattery`, { encoding: "utf8" })
 			.toString()
-			.split("\n")[51]
+			.split("\n")[50]
 			.replace(/\D/g, "") / 100
 	);
 }
@@ -184,8 +184,7 @@ function getTemperature(): number {
 function getLight(): number {
 	return +execSync(`/Users/maytanan/Desktop/maldos/src/light_sensor/light`, { encoding: "utf8" })
 		.toString()
-		.replace(/\D/g, "")
-		.slice(0, -6);
+		.replace(/\D/g, "");
 }
 
 console.log("Temperature:" + getTemperature());

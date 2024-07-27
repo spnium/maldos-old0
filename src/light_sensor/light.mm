@@ -1,4 +1,4 @@
-// lmutracker.mm
+// light.mm
 //
 // clang -o light light.mm -F /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks -framework Foundation -framework IOKit -framework CoreFoundation -framework BezelServices
 
@@ -20,53 +20,11 @@ extern "C" {
   IOHIDServiceClientRef ALCALSCopyALSServiceClient(void);
 }
 
-static double updateInterval = 0.1;
-static IOHIDServiceClientRef client;
-static IOHIDEventRef event;
-
-void updateTimerCallBack(CFRunLoopTimerRef timer, void *info) {
-  double value;
-
-  event = IOHIDServiceClientCopyEvent(client, kAmbientLightSensorEvent, 0, 0);
-
-  value = IOHIDEventGetFloatValue(event, IOHIDEventFieldBase(kAmbientLightSensorEvent));
-
-  printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b%8f", value);
-
-  CFRelease(event);
-}
-
 int main(void) {
-  // kern_return_t kr;
-  // CFRunLoopTimerRef updateTimer;
-
-  // client = ALCALSCopyALSServiceClient();
-  // if (client) {
-  //   event = IOHIDServiceClientCopyEvent(client, kAmbientLightSensorEvent, 0, 0);
-  // }
-  // if (!event) {
-  //   fprintf(stderr, "failed to find ambient light sensors\n");
-  //   exit(1);
-  // }
-
-  // CFRelease(event);
-
-  // setbuf(stdout, NULL);
-  // printf("%8f", 0.0);
-
-  // updateTimer = CFRunLoopTimerCreate(kCFAllocatorDefault,
-  //                 CFAbsoluteTimeGetCurrent() + updateInterval, updateInterval,
-  //                 0, 0, updateTimerCallBack, NULL);
-  // CFRunLoopAddTimer(CFRunLoopGetCurrent(), updateTimer, kCFRunLoopDefaultMode);
-  // CFRunLoopRun();
-
-  // exit(0);
-
-  double value;
-  client = ALCALSCopyALSServiceClient();
-  event = IOHIDServiceClientCopyEvent(client, kAmbientLightSensorEvent, 0, 0);
-  value = IOHIDEventGetFloatValue(event, IOHIDEventFieldBase(kAmbientLightSensorEvent));
-  printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b%8f", value); // units: lx
+  IOHIDServiceClientRef client = ALCALSCopyALSServiceClient();
+  IOHIDEventRef event = IOHIDServiceClientCopyEvent(client, kAmbientLightSensorEvent, 0, 0);
+  double value = IOHIDEventGetFloatValue(event, IOHIDEventFieldBase(kAmbientLightSensorEvent));
+  printf("%d", (int)value); // units: lx
 
   CFRelease(event);
   exit(0);
