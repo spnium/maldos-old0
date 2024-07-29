@@ -38,6 +38,9 @@ if (!TIMELIMIT) {
 	store.set("time_limit", TIMELIMIT);
 }
 
+let temperature = getTemperature();
+let lightLevel = getLight();
+
 let SNOOZELIMIT = 601;
 let timeLimit = TIMELIMIT;
 let timeLeft = timeLimit;
@@ -113,6 +116,12 @@ const createWindow = () => {
 
 	win.webContents.on("did-finish-load", () => {
 		startTimer();
+		let envInterval = new Interval(() => {
+			temperature = getTemperature();
+			lightLevel = getLight();
+			sendToRenderer("update-env", [temperature, lightLevel, 25]);
+		}, 2000);
+		envInterval.run();
 	});
 
 	ipcMain.on("load-page", (event, page) => {
