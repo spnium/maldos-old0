@@ -17,6 +17,11 @@ tr {
 	border-radius: 0.2rem;
 }
 
+tr i {
+	color: #ffde21;
+	font-size: 32px;
+}
+v
 tr:hover {
 	background-color: #fff;
 	transform: scale(1.1);

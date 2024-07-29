@@ -47,6 +47,7 @@
 		"electron-squirrel-startup": "^1.0.1",
 		"jpickle": "^0.4.1",
 		"socket-udp": "^0.4.5",
+		"sweetalert2": "^11.12.3",
 		"ws": "^8.18.0"
 	}
 }

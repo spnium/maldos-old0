@@ -1,4 +1,14 @@
 .settings {
     margin-top: 40px;
     margin-left: 280px;
+    font-size: 28px;
+}
+
+.settings span {
+    padding-left: 10px;
+}
+
+input[type="number"]
+{
+    font-size:28px;
 }

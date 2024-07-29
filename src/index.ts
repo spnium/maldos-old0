@@ -1,6 +1,22 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import path from "node:path";
 import Store from "electron-store";
+import { execSync } from "child_process";
+import { UDPSocket } from "socket-udp";
+import { spawn } from "node:child_process";
+
+const socket = new UDPSocket({ port: 6969 } as any);
+
+const handleUDP = async () => {
+	for await (const message of socket) {
+		//format = "id~score"
+		let data = message.toString("utf8").split("~");
+		let id = +data[0];
+		let score = +data[1];
+		console.log(`id: ${id} score: ${score}`);
+	}
+};
+handleUDP();
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -15,7 +31,7 @@ try {
 const store = new Store();
 
 let win: BrowserWindow | null = null;
-let alredyInit = false;
+let alreadyInit = false;
 let TIMELIMIT: number = +(store.get("time_limit") as any)!;
 if (!TIMELIMIT) {
 	TIMELIMIT = 2701;
@@ -33,15 +49,15 @@ const createWindow = () => {
 		width: 1080,
 		height: 720,
 		webPreferences: {
-			preload: path.join(__dirname, "preload.js"),
-			nodeIntegration: true,
 			contextIsolation: false,
+			nodeIntegration: true,
+			preload: path.join(__dirname, "preload.js"),
 		},
 	});
 
 	win.loadFile(path.join(__dirname, "/pages/main_page/main.html"));
 
-	win.webContents.openDevTools();
+	win.webContents.openDevTools({ mode: "detach" });
 
 	win.on("closed", () => {
 		win = null;
@@ -57,8 +73,8 @@ const createWindow = () => {
 		} else {
 			sendToRenderer("render-buttons", false);
 		}
-		if (!alredyInit) {
-			alredyInit = true;
+		if (!alreadyInit) {
+			alreadyInit = true;
 			timerInterval = new Interval(() => {
 				timeLeft -= 0.01;
 				if (timeLeft < 1) {
@@ -78,12 +94,16 @@ const createWindow = () => {
 		if (timerInterval) {
 			timerInterval.stop();
 			timerInterval = null;
-			alredyInit = false;
+			alreadyInit = false;
 		}
 		timeLeft = t;
 		timeLimit = t;
 		startTimer();
 	};
+
+	function startGame() {
+		spawn("python", ["/Users/maytanan/Desktop/maldos/src/game/maldos_client.py"]);
+	}
 
 	const sendToRenderer = (event: string, arg: any) => {
 		if (win) {
@@ -108,7 +128,17 @@ const createWindow = () => {
 		}
 	});
 
+	ipcMain.on("quit", () => {
+		app.quit();
+	});
+
 	ipcMain.on("start-game", () => {
+		sendToRenderer("show-warning", true);
+	});
+
+	ipcMain.on("spawn-game-process", () => {
+		startGame();
+		sendToRenderer("show-loading", true);
 		restartTimer(TIMELIMIT);
 	});
 
@@ -127,11 +157,7 @@ app.whenReady().then(() => {
 	});
 });
 
-app.on("window-all-closed", () => {
-	// if (process.platform !== 'darwin') {
-	//     app.quit();
-	// }
-});
+app.on("window-all-closed", () => {});
 
 const Interval = function (this: any, fn: Function, duration: number, ...args: any): void {
 	const _this = this;
@@ -163,15 +189,12 @@ const Interval = function (this: any, fn: Function, duration: number, ...args: a
 	};
 } as any;
 
-ipcMain.on("nav-btn-click", (event: any, arg: any) => {});
-
 ipcMain.on("set-time-limit", (event: any, arg: any) => {
 	TIMELIMIT = arg * 60 + 1;
 	timeLimit = TIMELIMIT;
 	store.set("time_limit", TIMELIMIT);
 });
 
-const { execSync } = require("child_process");
 function getTemperature(): number {
 	return (
 		+execSync(`ioreg -rn AppleSmartBattery`, { encoding: "utf8" })

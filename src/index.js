@@ -1,26 +1,10 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
+var __asyncValues = (this && this.__asyncValues) || function (o) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var m = o[Symbol.asyncIterator], i;
+    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
+    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
+    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
 };
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -29,27 +13,33 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const node_path_1 = __importDefault(require("node:path"));
 const electron_store_1 = __importDefault(require("electron-store"));
-const WebSocket = __importStar(require("ws"));
-const opencv_js_1 = __importDefault(require("@techstark/opencv-js"));
-const http_1 = __importDefault(require("http"));
-const port = 6969;
-const server = http_1.default.createServer();
-const wss = new WebSocket.Server({ server });
-wss.on("connection", (ws) => {
-    //connection is up, let's add a simple simple event
-    ws.on("message", (message) => {
-        //log the received message and send it back to the client
-        // console.log("received: %s", message.toString().split(" ")[100]);
-        console.log(opencv_js_1.default.imread(message));
-        ws.send(`received`);
-    });
-    //send immediatly a feedback to the incoming connection
-    ws.send("Hi there, I am a WebSocket server");
-});
-//start our server
-server.listen(port, () => {
-    console.log(`Data stream server started on port ${port}`);
-});
+const child_process_1 = require("child_process");
+const socket_udp_1 = require("socket-udp");
+const node_child_process_1 = require("node:child_process");
+const socket = new socket_udp_1.UDPSocket({ port: 6969 });
+const handleUDP = async () => {
+    var _a, e_1, _b, _c;
+    try {
+        for (var _d = true, socket_1 = __asyncValues(socket), socket_1_1; socket_1_1 = await socket_1.next(), _a = socket_1_1.done, !_a; _d = true) {
+            _c = socket_1_1.value;
+            _d = false;
+            const message = _c;
+            //format = "id~score"
+            let data = message.toString("utf8").split("~");
+            let id = +data[0];
+            let score = +data[1];
+            console.log(`id: ${id} score: ${score}`);
+        }
+    }
+    catch (e_1_1) { e_1 = { error: e_1_1 }; }
+    finally {
+        try {
+            if (!_d && !_a && (_b = socket_1.return)) await _b.call(socket_1);
+        }
+        finally { if (e_1) throw e_1.error; }
+    }
+};
+handleUDP();
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
     electron_1.app.quit();
@@ -61,7 +51,7 @@ try {
 catch (_) { }
 const store = new electron_store_1.default();
 let win = null;
-let alredyInit = false;
+let alreadyInit = false;
 let TIMELIMIT = +store.get("time_limit");
 if (!TIMELIMIT) {
     TIMELIMIT = 2701;
@@ -76,13 +66,13 @@ const createWindow = () => {
         width: 1080,
         height: 720,
         webPreferences: {
-            preload: node_path_1.default.join(__dirname, "preload.js"),
-            nodeIntegration: true,
             contextIsolation: false,
+            nodeIntegration: true,
+            preload: node_path_1.default.join(__dirname, "preload.js"),
         },
     });
     win.loadFile(node_path_1.default.join(__dirname, "/pages/main_page/main.html"));
-    win.webContents.openDevTools();
+    win.webContents.openDevTools({ mode: "detach" });
     win.on("closed", () => {
         win = null;
     });
@@ -97,8 +87,8 @@ const createWindow = () => {
         else {
             sendToRenderer("render-buttons", false);
         }
-        if (!alredyInit) {
-            alredyInit = true;
+        if (!alreadyInit) {
+            alreadyInit = true;
             timerInterval = new Interval(() => {
                 timeLeft -= 0.01;
                 if (timeLeft < 1) {
@@ -118,12 +108,15 @@ const createWindow = () => {
         if (timerInterval) {
             timerInterval.stop();
             timerInterval = null;
-            alredyInit = false;
+            alreadyInit = false;
         }
         timeLeft = t;
         timeLimit = t;
         startTimer();
     };
+    function startGame() {
+        (0, node_child_process_1.spawn)("python", ["/Users/maytanan/Desktop/maldos/src/game/maldos_client.py"]);
+    }
     const sendToRenderer = (event, arg) => {
         if (win) {
             win.webContents.send(event, arg);
@@ -144,7 +137,15 @@ const createWindow = () => {
                 break;
         }
     });
+    electron_1.ipcMain.on("quit", () => {
+        electron_1.app.quit();
+    });
     electron_1.ipcMain.on("start-game", () => {
+        sendToRenderer("show-warning", true);
+    });
+    electron_1.ipcMain.on("spawn-game-process", () => {
+        startGame();
+        sendToRenderer("show-loading", true);
         restartTimer(TIMELIMIT);
     });
     electron_1.ipcMain.on("snooze", () => {
@@ -159,11 +160,7 @@ electron_1.app.whenReady().then(() => {
         }
     });
 });
-electron_1.app.on("window-all-closed", () => {
-    // if (process.platform !== 'darwin') {
-    //     app.quit();
-    // }
-});
+electron_1.app.on("window-all-closed", () => { });
 const Interval = function (fn, duration, ...args) {
     const _this = this;
     this.baseline = undefined;
@@ -189,21 +186,19 @@ const Interval = function (fn, duration, ...args) {
         _this.run = () => { };
     };
 };
-electron_1.ipcMain.on("nav-btn-click", (event, arg) => { });
 electron_1.ipcMain.on("set-time-limit", (event, arg) => {
     TIMELIMIT = arg * 60 + 1;
     timeLimit = TIMELIMIT;
     store.set("time_limit", TIMELIMIT);
 });
-const { execSync } = require("child_process");
 function getTemperature() {
-    return (+execSync(`ioreg -rn AppleSmartBattery`, { encoding: "utf8" })
+    return (+(0, child_process_1.execSync)(`ioreg -rn AppleSmartBattery`, { encoding: "utf8" })
         .toString()
         .split("\n")[50]
         .replace(/\D/g, "") / 100);
 }
 function getLight() {
-    return +execSync(`/Users/maytanan/Desktop/maldos/src/light_sensor/light`, { encoding: "utf8" })
+    return +(0, child_process_1.execSync)(`/Users/maytanan/Desktop/maldos/src/light_sensor/light`, { encoding: "utf8" })
         .toString()
         .replace(/\D/g, "");
 }

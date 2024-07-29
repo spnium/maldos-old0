@@ -1,5 +1,6 @@
 "use strict";
 var { ipcRenderer } = require("electron");
+var Swal = require("sweetalert2");
 // Timer
 const FULL_DASH_ARRAY = 283;
 const WARNING_THRESHOLD = 10;
@@ -122,3 +123,33 @@ function startGame() {
 function snooze() {
     ipcRenderer.send("snooze");
 }
+function showWarning() {
+    Swal.fire({
+        title: "Warning",
+        // text: "If you have one or more of the following symptoms please seek professional advice before continuing:\nUndiagnosed illnesses\nConstant muscle pain",
+        html: `<span style="font-size: 18px;">If you have one or more of the following symptoms please seek professional advice before continuing:</span><br><span>-Undiagnosed illnesses<br>-Constant muscle pain</span>`,
+        icon: "warning",
+        confirmButtonText: "I understand",
+        showConfirmButton: true,
+    }).then((result) => {
+        if (!result.isConfirmed) {
+            ipcRenderer.send("quit");
+        }
+        ipcRenderer.send("spawn-game-process");
+    });
+}
+const showLoading = function () {
+    Swal.fire({
+        title: "loading",
+        allowEscapeKey: false,
+        allowOutsideClick: false,
+        timer: 9000,
+    });
+    Swal.showLoading();
+};
+ipcRenderer.on("show-warning", () => {
+    showWarning();
+});
+ipcRenderer.on("show-loading", () => {
+    showLoading();
+});
