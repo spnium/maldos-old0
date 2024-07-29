@@ -1,7 +1,7 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import path from "node:path";
 import Store from "electron-store";
-import { execSync } from "child_process";
+import { execSync, exec } from "child_process";
 import { UDPSocket } from "socket-udp";
 import { spawn } from "node:child_process";
 
@@ -40,6 +40,7 @@ if (!TIMELIMIT) {
 
 let temperature = getTemperature();
 let lightLevel = getLight();
+let soundLevel = getSound();
 
 let SNOOZELIMIT = 601;
 let timeLimit = TIMELIMIT;
@@ -119,7 +120,8 @@ const createWindow = () => {
 		let envInterval = new Interval(() => {
 			temperature = getTemperature();
 			lightLevel = getLight();
-			sendToRenderer("update-env", [temperature, lightLevel, 25]);
+			soundLevel = getSound();
+			sendToRenderer("update-env", [temperature, lightLevel, soundLevel]);
 		}, 2000);
 		envInterval.run();
 	});
@@ -215,6 +217,14 @@ function getTemperature(): number {
 
 function getLight(): number {
 	return +execSync(`/Users/maytanan/Desktop/maldos/src/light_sensor/light`, { encoding: "utf8" })
+		.toString()
+		.replace(/\D/g, "");
+}
+
+function getSound(): number {
+	return +exec("python /Users/maytanan/Desktop/maldos/src/sound_sensor/sound.py", {
+		encoding: "utf8",
+	})
 		.toString()
 		.replace(/\D/g, "");
 }

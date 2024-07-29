@@ -18,10 +18,10 @@ ipcRenderer.on("update-env", (_event, arg) => {
 	}
 
 	let soundMessage = "normal";
-	if (arg[2] > 100) {
+	if (arg[2] > 80) {
 		soundMessage = "too loud";
 	}
-	if (arg[2] < 10) {
+	if (arg[2] < 20) {
 		soundMessage = "quiet";
 	}
 

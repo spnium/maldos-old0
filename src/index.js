@@ -59,6 +59,7 @@ if (!TIMELIMIT) {
 }
 let temperature = getTemperature();
 let lightLevel = getLight();
+let soundLevel = getSound();
 let SNOOZELIMIT = 601;
 let timeLimit = TIMELIMIT;
 let timeLeft = timeLimit;
@@ -129,7 +130,8 @@ const createWindow = () => {
         let envInterval = new Interval(() => {
             temperature = getTemperature();
             lightLevel = getLight();
-            sendToRenderer("update-env", [temperature, lightLevel, 25]);
+            soundLevel = getSound();
+            sendToRenderer("update-env", [temperature, lightLevel, soundLevel]);
         }, 2000);
         envInterval.run();
     });
@@ -207,6 +209,13 @@ function getTemperature() {
 }
 function getLight() {
     return +(0, child_process_1.execSync)(`/Users/maytanan/Desktop/maldos/src/light_sensor/light`, { encoding: "utf8" })
+        .toString()
+        .replace(/\D/g, "");
+}
+function getSound() {
+    return +(0, child_process_1.exec)("python /Users/maytanan/Desktop/maldos/src/sound_sensor/sound.py", {
+        encoding: "utf8",
+    })
         .toString()
         .replace(/\D/g, "");
 }

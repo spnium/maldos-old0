@@ -16,10 +16,10 @@ ipcRenderer.on("update-env", (_event, arg) => {
         lightMessage = "too dark";
     }
     let soundMessage = "normal";
-    if (arg[2] > 100) {
+    if (arg[2] > 80) {
         soundMessage = "too loud";
     }
-    if (arg[2] < 10) {
+    if (arg[2] < 20) {
         soundMessage = "quiet";
     }
     document.getElementById("temperature").innerHTML = `<span>Temperature : ${temperatureMessage}</span>`;
