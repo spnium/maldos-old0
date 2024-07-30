@@ -59,6 +59,7 @@ const createWindow = () => {
 	win = new BrowserWindow({
 		width: 1080,
 		height: 720,
+		icon: path.join(__dirname, "/pages/assets/maldos.ico"),
 		webPreferences: {
 			contextIsolation: false,
 			nodeIntegration: true,
@@ -115,7 +116,7 @@ const createWindow = () => {
 	};
 
 	function startGame() {
-		// spawn("python", ["/Users/maytanan/Desktop/maldos/src/game/maldos_client.py"]);
+		spawn("python", ["/Users/maytanan/Desktop/maldos/src/game/maldos_client.py"]);
 	}
 
 	const sendToRenderer = (event: string, arg: any) => {

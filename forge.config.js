@@ -4,6 +4,8 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 module.exports = {
   packagerConfig: {
     asar: true,
+    name: 'maldos',
+    icon: './src/pages/assets/maldos' // no file extension required
   },
   rebuildConfig: {},
   makers: [

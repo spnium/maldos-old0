@@ -1,4 +1,4 @@
-/* .environment {
+.environment {
   margin-left: 220px;
 }
 
@@ -43,10 +43,10 @@
 
 .recomended span {
   margin: 20px;
-} */
+}
 
 
-.environment {
+/* .environment {
   margin-left: 220px;
 }
 
@@ -58,4 +58,4 @@
 .status span {
   margin: 40px;
   font-size: 20px;
-}
+} */

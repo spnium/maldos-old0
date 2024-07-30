@@ -2,7 +2,6 @@ import time
 import mediapipe as mp
 import cv2
 import numpy as np
-from threading import Thread
 
 
 NOSE = 0
@@ -117,18 +116,9 @@ cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 timer_time_progress_bar = [0]
 start_time = time.time()
 
-def update_timer_time_progress_bar():
-    global timer_time_progress_bar
-    global start_time
-    while True:
-        timer_time_progress_bar[0] = time.time() - start_time
-
-update_timer_time_progress_bar_thread = Thread(target=update_timer_time_progress_bar)
-
 with mp_pose.Pose(min_detection_confidence=min_detection_confidence,
                   min_tracking_confidence=min_tracking_confidence,
                   model_complexity=model_complexity) as pose:
-    # update_timer_time_progress_bar_thread.start()
     while True:
         ret, frame = cap.read()
         if not ret:
