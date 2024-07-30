@@ -55,6 +55,8 @@ let timeLeft = timeLimit;
 
 let timerInterval: any = null;
 
+let alreadyPlayedGame = false;
+
 const createWindow = () => {
 	win = new BrowserWindow({
 		width: 1080,
@@ -145,6 +147,11 @@ const createWindow = () => {
 			case "settings":
 				sendToRenderer("render-settings", (timeLimit - 1) / 60);
 				break;
+			case "statistics":
+				if (alreadyPlayedGame) {
+					sendToRenderer("yellow", true);
+				}
+				break;
 			default:
 				break;
 		}
@@ -162,6 +169,7 @@ const createWindow = () => {
 		startGame();
 		sendToRenderer("show-loading", true);
 		restartTimer(TIMELIMIT);
+		alreadyPlayedGame = true;
 	});
 
 	ipcMain.on("snooze", () => {

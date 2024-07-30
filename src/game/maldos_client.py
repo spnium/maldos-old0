@@ -2,6 +2,8 @@ import time
 import mediapipe as mp
 import cv2
 import numpy as np
+from playsound import playsound
+import pathlib
 
 
 NOSE = 0
@@ -169,6 +171,7 @@ time_for_each_star = 10
 
 _ = 0
 
+playsound(str(pathlib.Path(__file__).parent.resolve()) + "/sound.mp3", block=False)
 while True:
     ret, frame = cap.read()
     if not ret:

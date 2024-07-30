@@ -71,6 +71,7 @@ let SNOOZELIMIT = 601;
 let timeLimit = TIMELIMIT;
 let timeLeft = timeLimit;
 let timerInterval = null;
+let alreadyPlayedGame = false;
 const createWindow = () => {
     win = new electron_1.BrowserWindow({
         width: 1080,
@@ -154,6 +155,11 @@ const createWindow = () => {
             case "settings":
                 sendToRenderer("render-settings", (timeLimit - 1) / 60);
                 break;
+            case "statistics":
+                if (alreadyPlayedGame) {
+                    sendToRenderer("yellow", true);
+                }
+                break;
             default:
                 break;
         }
@@ -168,6 +174,7 @@ const createWindow = () => {
         startGame();
         sendToRenderer("show-loading", true);
         restartTimer(TIMELIMIT);
+        alreadyPlayedGame = true;
     });
     electron_1.ipcMain.on("snooze", () => {
         restartTimer(SNOOZELIMIT);
