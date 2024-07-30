@@ -167,6 +167,8 @@ right_star_touch_time = 0
 
 time_for_each_star = 10
 
+_ = 0
+
 while True:
     ret, frame = cap.read()
     if not ret:
@@ -287,10 +289,19 @@ while True:
     elif not right_star_permenent:
         draw_timer(10, set_right_star_permenent)
         
-    if cv2.waitKey(5) & 0xFF == ord('q'):
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        cv2.destroyAllWindows()
         break
     cv2.imshow("", frame)
+    
+    if top_star_permenent and left_star_permenent and right_star_permenent:
+        if _ > 20 or top_star_active:
+            cv2.destroyAllWindows()
+            break
+        else:
+            _ += 1
 
+
+cv2.destroyAllWindows()
 pose.close()
 cap.release()
-cv2.destroyAllWindows()

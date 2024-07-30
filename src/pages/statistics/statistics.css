@@ -18,9 +18,14 @@ tr {
 }
 
 tr i {
-	color: #ffde21;
+	/* color: #ffde21; */
 	font-size: 32px;
 }
+
+tr .yellow {
+	color: #ffde21;
+}
+
 v
 tr:hover {
 	background-color: #fff;
