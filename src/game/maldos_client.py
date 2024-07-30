@@ -45,8 +45,14 @@ min_detection_confidence = 0.35
 min_tracking_confidence = 0.3
 model_complexity = 1
 
-width = 1080
+width = 1280
 height = 720
+
+pose = mp_pose.Pose(
+    min_detection_confidence=min_detection_confidence,
+    min_tracking_confidence=min_tracking_confidence,
+    model_complexity=model_complexity
+)
 
 def calculate_angle(a, b, c):
     a = np.array(a)
@@ -106,90 +112,206 @@ def draw_star(img, center, size, color, thickness=1):
         cv2.fillPoly(img, [pts], color)
     
     cv2.polylines(img, [pts], isClosed=True, color=color, thickness=abs(thickness))
+    
 
+# def set_star_permenent(star):
+#     global top_star_permenent
+#     global left_star_permenent
+#     global right_star_permenent
+    
+#     if star == "top":
+#         top_star_permenent = True
+#         print("top")
+#     elif star == "left":
+#         left_star_permenent = True
+#         print("left")
+#     elif star == "right":
+#         right_star_permenent = True
+#         print("right")
+
+def set_top_star_permenent():
+    global top_star_permenent
+    top_star_permenent = True
+    reset_timer()
+
+def set_left_star_permenent():
+    global left_star_permenent
+    left_star_permenent = True
+    reset_timer()
+
+def set_right_star_permenent():
+    global right_star_permenent
+    right_star_permenent = True
+    reset_timer()
 
 cap = cv2.VideoCapture(0)
 
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
-timer_time_progress_bar = [0]
+timer_time = 0
 start_time = time.time()
 
-with mp_pose.Pose(min_detection_confidence=min_detection_confidence,
-                  min_tracking_confidence=min_tracking_confidence,
-                  model_complexity=model_complexity) as pose:
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            continue
-        frame = cv2.flip(frame, 1)
+star_offset_x = 0
+star_touch_err = 50
 
-        frame.flags.writeable = False
-        results = pose.process(cv2.cvtColor(cv2.flip(frame, 1), cv2.COLOR_BGR2RGB))
-        frame.flags.writeable = True
+top_star_coord = (int(width / 2), 50)
+left_star_coord = (220, 440)
+right_star_coord = (width - 220, 440)
 
-        frame = cv2.flip(frame, 1)
-        if results:
-            if results.pose_landmarks:
-                pose_coordinates = translate_landmarks(results.pose_landmarks.landmark, (width, height))
-                mp_drawing.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
-        frame = cv2.flip(frame, 1)
+top_star_active = False
+left_star_active = False
+right_star_active = False
 
-        def draw_empty_star(center):
-            center = (center[0] + 90, center[1])
-            draw_star(frame, center, 20, (0, 255, 255), 2)
-            draw_star(frame, center, 23, (0, 0, 255), 1)
-            
-        draw_filled_star = lambda center: draw_star(frame, (center[0] + 90, center[1]), 20, (0, 255, 255), -5)
+top_star_permenent = False
+left_star_permenent = False
+right_star_permenent = False
+
+top_star_false_count = 0
+left_star_false_count = 0
+right_star_false_count = 0
+
+top_star_was_previously_touching = False
+left_star_was_previously_touching = False
+right_star_was_previously_touching = False
+
+false_count_threshold = 7
+
+top_star_touch_time = 0
+left_star_touch_time = 0
+right_star_touch_time = 0
+
+top_star_touch_start_time = 0
+left_star_touch_start_time = 0
+right_star_touch_start_time = 0
+
+time_for_each_star = 10
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        continue
+    frame = cv2.flip(frame, 1)
+
+    frame.flags.writeable = False
+    results = pose.process(cv2.cvtColor(cv2.flip(frame, 1), cv2.COLOR_BGR2RGB))
+    frame.flags.writeable = True
+
+    frame = cv2.flip(frame, 1)
+    if results:
+        if results.pose_landmarks:
+            pose_coordinates = translate_landmarks(results.pose_landmarks.landmark, (width, height))
+            mp_drawing.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+    frame = cv2.flip(frame, 1)
+
+    def draw_empty_star(center):
+        center = (center[0] + star_offset_x, center[1])
+        draw_star(frame, center, 20, (0, 255, 255), 2)
+        draw_star(frame, center, 23, (0, 0, 255), 1)
         
-        def draw_star_if_true(center, expression):
-            if expression:
-                draw_filled_star(center)
+    draw_filled_star = lambda center: draw_star(frame, (center[0] + star_offset_x, center[1]), 20, (0, 255, 255), -5)
+    
+    def draw_star_if_true(center, expression):
+        if expression:
+            draw_filled_star(center)
+        else:
+            draw_empty_star(center)
+            
+    
+    def draw_timer(t, callback):
+        # timer_width = 200 # secs = width / 20 ; width = time * 20 (time in seconds)
+        timer_width = int(t * 20)
+        timer_time = time.time() - start_time
+        timer_progress = int(timer_width * timer_time * 0.1)
+        if timer_progress >= timer_width:
+            timer_progress = timer_width
+            callback()
+        cv2.rectangle(frame, (0, 0), (timer_width, 50), (0, 0, 0), -1)
+        cv2.rectangle(frame, (0, 0), (timer_progress, 50), (0, 255, 0), -1)
+            
+    def reset_timer():
+        global timer_time
+        global start_time
+        timer_time = 0
+        start_time = time.time()
+    
+    if results:
+        if results.pose_landmarks:
+            
+            left_wrist = pose_coordinates[LEFT_WRIST]
+            right_wrist = pose_coordinates[RIGHT_WRIST]
+        
+            wrist_midpoint = midpoint(left_wrist, right_wrist)
+            
+            draw_star_if_true(wrist_midpoint, touching(left_wrist, right_wrist, 240, 240))
+                
+            right_elbow = pose_coordinates[RIGHT_ELBOW]
+            left_elbow = pose_coordinates[LEFT_ELBOW]
+            right_elbow_angle = calculate_angle(right_wrist, right_elbow, pose_coordinates[RIGHT_SHOULDER])
+            left_elbow_angle = calculate_angle(left_wrist, left_elbow, pose_coordinates[LEFT_SHOULDER])
+            
+            draw_star_if_true(left_elbow, left_elbow_angle > 140)
+            draw_star_if_true(right_elbow, right_elbow_angle > 140)
+            
+            top_star_touching = touching(wrist_midpoint, top_star_coord, star_touch_err, star_touch_err)
+            left_star_touching = touching(wrist_midpoint, left_star_coord, star_touch_err, star_touch_err)
+            right_star_touching = touching(wrist_midpoint, right_star_coord, star_touch_err, star_touch_err)
+            
+            if top_star_touching:
+                top_star_was_previously_touching = True
+                top_star_false_count = 0
+                top_star_active = True
             else:
-                draw_empty_star(center)
-                
-        
-        top_star_coord = (int(width / 2), 50)
-        left_star_coord = (220, 440)
-        right_star_coord = (width - 220, 440)
-        
-        if results:
-            if results.pose_landmarks:
-                
-                left_wrist = pose_coordinates[LEFT_WRIST]
-                right_wrist = pose_coordinates[RIGHT_WRIST]
-            
-                wrist_midpoint = midpoint(left_wrist, right_wrist)
-                
-                draw_star_if_true(wrist_midpoint, touching(left_wrist, right_wrist, 200, 200))
+                if top_star_was_previously_touching or top_star_false_count < false_count_threshold:
+                    top_star_false_count += 1
+                if top_star_false_count > false_count_threshold:
+                    top_star_false_count = 0
+                    top_star_active = False
                     
-                right_elbow = pose_coordinates[RIGHT_ELBOW]
-                left_elbow = pose_coordinates[LEFT_ELBOW]
-                right_elbow_angle = calculate_angle(right_wrist, right_elbow, pose_coordinates[RIGHT_SHOULDER])
-                left_elbow_angle = calculate_angle(left_wrist, left_elbow, pose_coordinates[LEFT_SHOULDER])
-                
-                draw_star_if_true(left_elbow, left_elbow_angle > 140)
-                draw_star_if_true(right_elbow, right_elbow_angle > 140)
-                
-                star_touch_err = 50
-                draw_star_if_true(top_star_coord, touching(wrist_midpoint, top_star_coord, star_touch_err, star_touch_err))
-                draw_star_if_true(left_star_coord, touching(wrist_midpoint, left_star_coord, star_touch_err, star_touch_err))
-                draw_star_if_true(right_star_coord, touching(wrist_midpoint, right_star_coord, star_touch_err, star_touch_err))
-
-
-        # timer bar
-
-                
-        # timer_width = 200
-        # cv2.rectangle(frame, (0, 0), (timer_width, 50), (0, 0, 0), -1)
-        # cv2.rectangle(frame, (0, 0), (int(timer_width * timer_time_progress_bar[0]), 50), (255, 0, 0), -1)
+            if left_star_touching:
+                left_star_was_previously_touching = True
+                left_star_false_count = 0
+                left_star_active = True
+            else:
+                if left_star_was_previously_touching or left_star_false_count < false_count_threshold:
+                    left_star_false_count += 1
+                if left_star_false_count > false_count_threshold:
+                    left_star_false_count = 0
+                    left_star_active = False
+                    
+            if right_star_touching:
+                right_star_was_previously_touching = True
+                right_star_false_count = 0
+                right_star_active = True
+            else:
+                if right_star_was_previously_touching or right_star_false_count < false_count_threshold:
+                    right_star_false_count += 1
+                if right_star_false_count > false_count_threshold:
+                    right_star_false_count = 0
+                    right_star_active = False
+                    
+            if not top_star_active and not top_star_permenent and not left_star_active and not left_star_permenent and not right_star_active and not right_star_permenent:
+                reset_timer()
+            if top_star_permenent and not left_star_active and not left_star_permenent and not right_star_active and not right_star_permenent:
+                reset_timer()
+            if top_star_permenent and left_star_permenent and not right_star_active and not right_star_permenent:
+                reset_timer()
+            
+            draw_star_if_true(top_star_coord, top_star_active or top_star_permenent)
+            draw_star_if_true(left_star_coord, left_star_active or left_star_permenent)
+            draw_star_if_true(right_star_coord, right_star_active or right_star_permenent)
+    
+    if not top_star_permenent:
+        draw_timer(10, set_top_star_permenent)
+    elif not left_star_permenent and not right_star_permenent:
+        draw_timer(10, set_left_star_permenent)
+    elif not right_star_permenent:
+        draw_timer(10, set_right_star_permenent)
         
-        
-        
-        if cv2.waitKey(5) & 0xFF == ord('q'):
-            break
-        cv2.imshow("", frame)
+    if cv2.waitKey(5) & 0xFF == ord('q'):
+        break
+    cv2.imshow("", frame)
 
+pose.close()
 cap.release()
 cv2.destroyAllWindows()

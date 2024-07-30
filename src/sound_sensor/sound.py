@@ -10,7 +10,7 @@ meter = pyloudnorm.Meter(rate) # create BS.1770 meter
 loudness = meter.integrated_loudness(data)
 
 output = int(loudness + 100)
-if output < 69:
+if output < 68:
     print(output)
 else:
     print(output + 9)

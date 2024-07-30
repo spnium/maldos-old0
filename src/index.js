@@ -15,6 +15,7 @@ const node_path_1 = __importDefault(require("node:path"));
 const electron_store_1 = __importDefault(require("electron-store"));
 const child_process_1 = require("child_process");
 const socket_udp_1 = require("socket-udp");
+const node_child_process_1 = require("node:child_process");
 const socket = new socket_udp_1.UDPSocket({ port: 6969 });
 const handleUDP = async () => {
     var _a, e_1, _b, _c;
@@ -74,6 +75,7 @@ const createWindow = () => {
     win = new electron_1.BrowserWindow({
         width: 1080,
         height: 720,
+        icon: node_path_1.default.join(__dirname, "/pages/assets/maldos.ico"),
         webPreferences: {
             contextIsolation: false,
             nodeIntegration: true,
@@ -81,7 +83,7 @@ const createWindow = () => {
         },
     });
     win.loadFile(node_path_1.default.join(__dirname, "/pages/main_page/main.html"));
-    win.webContents.openDevTools({ mode: "detach" });
+    // win.webContents.openDevTools({ mode: "detach" });
     win.on("closed", () => {
         win = null;
     });
@@ -126,7 +128,8 @@ const createWindow = () => {
         startTimer();
     };
     function startGame() {
-        // spawn("python", ["/Users/maytanan/Desktop/maldos/src/game/maldos_client.py"]);
+        (0, node_child_process_1.spawn)("python", ["/Users/maytanan/Desktop/maldos/src/game/maldos_client.py"]);
+        // exec("python /Users/maytanan/Desktop/maldos/src/game/maldos_client.py");
     }
     const sendToRenderer = (event, arg) => {
         if (win) {
@@ -210,10 +213,13 @@ electron_1.ipcMain.on("set-time-limit", (event, arg) => {
     store.set("time_limit", TIMELIMIT);
 });
 function getTemperature() {
-    return Math.round(+(0, child_process_1.execSync)(`ioreg -rn AppleSmartBattery`, { encoding: "utf8" })
-        .toString()
-        .split("\n")[50]
-        .replace(/\D/g, "") / 100);
+    // return Math.round(
+    // 	+execSync(`ioreg -rn AppleSmartBattery`, { encoding: "utf8" })
+    // 		.toString()
+    // 		.split("\n")[50]
+    // 		.replace(/\D/g, "") / 100
+    // );
+    return 30;
 }
 function getLight() {
     return +(0, child_process_1.execSync)(`/Users/maytanan/Desktop/maldos/src/light_sensor/light`, { encoding: "utf8" })
@@ -227,8 +233,8 @@ async function getSound() {
         });
     });
 }
-// console.log("Temperature:" + getTemperature());
-// console.log("Light:" + getLight());
+console.log("Temperature:" + getTemperature());
+console.log("Light:" + getLight());
 // getSound().then((value) => {
 // 	console.log("Sound:" + value);
 // });

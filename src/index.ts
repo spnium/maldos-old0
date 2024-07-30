@@ -69,7 +69,7 @@ const createWindow = () => {
 
 	win.loadFile(path.join(__dirname, "/pages/main_page/main.html"));
 
-	win.webContents.openDevTools({ mode: "detach" });
+	// win.webContents.openDevTools({ mode: "detach" });
 
 	win.on("closed", () => {
 		win = null;
@@ -117,6 +117,7 @@ const createWindow = () => {
 
 	function startGame() {
 		spawn("python", ["/Users/maytanan/Desktop/maldos/src/game/maldos_client.py"]);
+		// exec("python /Users/maytanan/Desktop/maldos/src/game/maldos_client.py");
 	}
 
 	const sendToRenderer = (event: string, arg: any) => {
@@ -217,12 +218,13 @@ ipcMain.on("set-time-limit", (event: any, arg: any) => {
 });
 
 function getTemperature(): number {
-	return Math.round(
-		+execSync(`ioreg -rn AppleSmartBattery`, { encoding: "utf8" })
-			.toString()
-			.split("\n")[50]
-			.replace(/\D/g, "") / 100
-	);
+	// return Math.round(
+	// 	+execSync(`ioreg -rn AppleSmartBattery`, { encoding: "utf8" })
+	// 		.toString()
+	// 		.split("\n")[50]
+	// 		.replace(/\D/g, "") / 100
+	// );
+	return 30;
 }
 
 function getLight(): number {
@@ -242,8 +244,8 @@ async function getSound(): Promise<number> {
 	});
 }
 
-// console.log("Temperature:" + getTemperature());
-// console.log("Light:" + getLight());
+console.log("Temperature:" + getTemperature());
+console.log("Light:" + getLight());
 // getSound().then((value) => {
 // 	console.log("Sound:" + value);
 // });
