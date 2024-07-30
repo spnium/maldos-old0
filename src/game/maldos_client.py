@@ -139,9 +139,9 @@ start_time = time.time()
 star_offset_x = 0
 star_touch_err = 50
 
-top_star_coord = (int(width / 2), 50)
-left_star_coord = (220, 440)
-right_star_coord = (width - 220, 440)
+top_star_coord = (int(width / 2), 120)
+left_star_coord = (320, 240)
+right_star_coord = (width - 320, 240)
 
 top_star_active = False
 left_star_active = False
@@ -199,7 +199,6 @@ while True:
             
     
     def draw_timer(t, callback):
-        # timer_width = 200 # secs = width / 20 ; width = time * 20 (time in seconds)
         timer_width = int(t * 20)
         timer_time = time.time() - start_time
         timer_progress = int(timer_width * timer_time * 0.1)
