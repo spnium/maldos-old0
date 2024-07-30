@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, Notification } from "electron";
 import path, { resolve } from "node:path";
 import Store from "electron-store";
 import { execSync, exec } from "child_process";
@@ -17,6 +17,14 @@ const handleUDP = async () => {
 	}
 };
 handleUDP();
+
+const showTimesUpNotification = () => {
+	const notification = new Notification({
+		title: "Time's up!",
+		body: "It's time to take a break and do some exercises.",
+	});
+	notification.show();
+};
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -75,6 +83,7 @@ const createWindow = () => {
 			sendToRenderer("render-buttons", true);
 		} else {
 			sendToRenderer("render-buttons", false);
+			showTimesUpNotification();
 		}
 		if (!alreadyInit) {
 			alreadyInit = true;
@@ -83,6 +92,7 @@ const createWindow = () => {
 				if (timeLeft < 1) {
 					sendToRenderer("update-timer", [0, timeLimit]);
 					sendToRenderer("render-buttons", false);
+					showTimesUpNotification();
 					timeLeft = 0;
 					timerInterval.stop();
 				} else {
@@ -105,7 +115,7 @@ const createWindow = () => {
 	};
 
 	function startGame() {
-		spawn("python", ["/Users/maytanan/Desktop/maldos/src/game/maldos_client.py"]);
+		// spawn("python", ["/Users/maytanan/Desktop/maldos/src/game/maldos_client.py"]);
 	}
 
 	const sendToRenderer = (event: string, arg: any) => {
@@ -206,7 +216,7 @@ ipcMain.on("set-time-limit", (event: any, arg: any) => {
 });
 
 function getTemperature(): number {
-	return (
+	return Math.round(
 		+execSync(`ioreg -rn AppleSmartBattery`, { encoding: "utf8" })
 			.toString()
 			.split("\n")[50]

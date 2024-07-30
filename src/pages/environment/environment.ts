@@ -28,7 +28,7 @@ ipcRenderer.on("update-env", (_event, arg) => {
 	// document.getElementById("light")!.innerHTML = `<span>Light : ${lightMessage}</span>`;
 	// document.getElementById("sound")!.innerHTML = `<span>Sound : ${soundMessage}</span>`;
 
-	document.getElementById("temperature")!.innerHTML = `<span>Temperature : ${arg[0] - 5}</span>`;
-	document.getElementById("light")!.innerHTML = `<span>Light : ${arg[1]}</span>`;
-	document.getElementById("sound")!.innerHTML = `<span>Sound : ${arg[2]}</span>`;
+	document.getElementById("temperature")!.innerHTML = `<span>Temperature : ${arg[0] - 5}℃</span>`;
+	document.getElementById("light")!.innerHTML = `<span>Light : ${arg[1]} lx</span>`;
+	document.getElementById("sound")!.innerHTML = `<span>Sound : ${arg[2]} dB</span>`;
 });

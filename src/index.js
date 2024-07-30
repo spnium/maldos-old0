@@ -15,7 +15,6 @@ const node_path_1 = __importDefault(require("node:path"));
 const electron_store_1 = __importDefault(require("electron-store"));
 const child_process_1 = require("child_process");
 const socket_udp_1 = require("socket-udp");
-const node_child_process_1 = require("node:child_process");
 const socket = new socket_udp_1.UDPSocket({ port: 6969 });
 const handleUDP = async () => {
     var _a, e_1, _b, _c;
@@ -40,6 +39,13 @@ const handleUDP = async () => {
     }
 };
 handleUDP();
+const showTimesUpNotification = () => {
+    const notification = new electron_1.Notification({
+        title: "Time's up!",
+        body: "It's time to take a break and do some exercises.",
+    });
+    notification.show();
+};
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
     electron_1.app.quit();
@@ -89,6 +95,7 @@ const createWindow = () => {
         }
         else {
             sendToRenderer("render-buttons", false);
+            showTimesUpNotification();
         }
         if (!alreadyInit) {
             alreadyInit = true;
@@ -97,6 +104,7 @@ const createWindow = () => {
                 if (timeLeft < 1) {
                     sendToRenderer("update-timer", [0, timeLimit]);
                     sendToRenderer("render-buttons", false);
+                    showTimesUpNotification();
                     timeLeft = 0;
                     timerInterval.stop();
                 }
@@ -118,7 +126,7 @@ const createWindow = () => {
         startTimer();
     };
     function startGame() {
-        (0, node_child_process_1.spawn)("python", ["/Users/maytanan/Desktop/maldos/src/game/maldos_client.py"]);
+        // spawn("python", ["/Users/maytanan/Desktop/maldos/src/game/maldos_client.py"]);
     }
     const sendToRenderer = (event, arg) => {
         if (win) {
@@ -202,7 +210,7 @@ electron_1.ipcMain.on("set-time-limit", (event, arg) => {
     store.set("time_limit", TIMELIMIT);
 });
 function getTemperature() {
-    return (+(0, child_process_1.execSync)(`ioreg -rn AppleSmartBattery`, { encoding: "utf8" })
+    return Math.round(+(0, child_process_1.execSync)(`ioreg -rn AppleSmartBattery`, { encoding: "utf8" })
         .toString()
         .split("\n")[50]
         .replace(/\D/g, "") / 100);
