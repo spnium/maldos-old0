@@ -112,22 +112,6 @@ def draw_star(img, center, size, color, thickness=1):
         cv2.fillPoly(img, [pts], color)
     
     cv2.polylines(img, [pts], isClosed=True, color=color, thickness=abs(thickness))
-    
-
-# def set_star_permenent(star):
-#     global top_star_permenent
-#     global left_star_permenent
-#     global right_star_permenent
-    
-#     if star == "top":
-#         top_star_permenent = True
-#         print("top")
-#     elif star == "left":
-#         left_star_permenent = True
-#         print("left")
-#     elif star == "right":
-#         right_star_permenent = True
-#         print("right")
 
 def set_top_star_permenent():
     global top_star_permenent
@@ -180,10 +164,6 @@ false_count_threshold = 7
 top_star_touch_time = 0
 left_star_touch_time = 0
 right_star_touch_time = 0
-
-top_star_touch_start_time = 0
-left_star_touch_start_time = 0
-right_star_touch_start_time = 0
 
 time_for_each_star = 10
 
