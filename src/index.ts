@@ -1,5 +1,5 @@
 import { app, BrowserWindow, ipcMain } from "electron";
-import path from "node:path";
+import path, { resolve } from "node:path";
 import Store from "electron-store";
 import { execSync, exec } from "child_process";
 import { UDPSocket } from "socket-udp";
@@ -37,10 +37,9 @@ if (!TIMELIMIT) {
 	TIMELIMIT = 2701;
 	store.set("time_limit", TIMELIMIT);
 }
-
+let soundLevel = 60;
 let temperature = getTemperature();
 let lightLevel = getLight();
-let soundLevel = getSound();
 
 let SNOOZELIMIT = 601;
 let timeLimit = TIMELIMIT;
@@ -115,12 +114,12 @@ const createWindow = () => {
 		}
 	};
 
-	win.webContents.on("did-finish-load", () => {
+	win.webContents.on("did-finish-load", async () => {
 		startTimer();
-		let envInterval = new Interval(() => {
+		let envInterval = new Interval(async () => {
+			soundLevel = await getSound();
 			temperature = getTemperature();
 			lightLevel = getLight();
-			soundLevel = getSound();
 			sendToRenderer("update-env", [temperature, lightLevel, soundLevel]);
 		}, 2000);
 		envInterval.run();
@@ -221,13 +220,19 @@ function getLight(): number {
 		.replace(/\D/g, "");
 }
 
-function getSound(): number {
-	return +exec("python /Users/maytanan/Desktop/maldos/src/sound_sensor/sound.py", {
-		encoding: "utf8",
-	})
-		.toString()
-		.replace(/\D/g, "");
+async function getSound(): Promise<number> {
+	return new Promise((resolve) => {
+		exec(
+			"python /Users/maytanan/Desktop/maldos/src/sound_sensor/sound.py",
+			(err: any, stdout: any, stderr: any) => {
+				resolve(+stdout.toString().replace(/\D/g, ""));
+			}
+		);
+	});
 }
 
-console.log("Temperature:" + getTemperature());
-console.log("Light:" + getLight());
+// console.log("Temperature:" + getTemperature());
+// console.log("Light:" + getLight());
+// getSound().then((value) => {
+// 	console.log("Sound:" + value);
+// });

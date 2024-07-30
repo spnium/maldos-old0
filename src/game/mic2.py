@@ -10,4 +10,4 @@ scaled = np.int16(data / np.max(np.abs(data)) * 32767)
 rate = 44100
 meter = pyln.Meter(rate) # create BS.1770 meter
 loudness = meter.integrated_loudness(data) # measure loudness
-print(int(loudness + 100))
+print(loudness + 100)

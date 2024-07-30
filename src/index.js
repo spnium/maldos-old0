@@ -57,9 +57,9 @@ if (!TIMELIMIT) {
     TIMELIMIT = 2701;
     store.set("time_limit", TIMELIMIT);
 }
+let soundLevel = 60;
 let temperature = getTemperature();
 let lightLevel = getLight();
-let soundLevel = getSound();
 let SNOOZELIMIT = 601;
 let timeLimit = TIMELIMIT;
 let timeLeft = timeLimit;
@@ -125,12 +125,12 @@ const createWindow = () => {
             win.webContents.send(event, arg);
         }
     };
-    win.webContents.on("did-finish-load", () => {
+    win.webContents.on("did-finish-load", async () => {
         startTimer();
-        let envInterval = new Interval(() => {
+        let envInterval = new Interval(async () => {
+            soundLevel = await getSound();
             temperature = getTemperature();
             lightLevel = getLight();
-            soundLevel = getSound();
             sendToRenderer("update-env", [temperature, lightLevel, soundLevel]);
         }, 2000);
         envInterval.run();
@@ -212,12 +212,15 @@ function getLight() {
         .toString()
         .replace(/\D/g, "");
 }
-function getSound() {
-    return +(0, child_process_1.exec)("python /Users/maytanan/Desktop/maldos/src/sound_sensor/sound.py", {
-        encoding: "utf8",
-    })
-        .toString()
-        .replace(/\D/g, "");
+async function getSound() {
+    return new Promise((resolve) => {
+        (0, child_process_1.exec)("python /Users/maytanan/Desktop/maldos/src/sound_sensor/sound.py", (err, stdout, stderr) => {
+            resolve(+stdout.toString().replace(/\D/g, ""));
+        });
+    });
 }
-console.log("Temperature:" + getTemperature());
-console.log("Light:" + getLight());
+// console.log("Temperature:" + getTemperature());
+// console.log("Light:" + getLight());
+// getSound().then((value) => {
+// 	console.log("Sound:" + value);
+// });
